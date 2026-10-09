@@ -21,7 +21,7 @@ I explored the following questions:
 ![Greenest cities](figures/greenest_cities.png)
 
 This visualisation ranks the top cities by the percentage of their urban area
-classified as green in the most recent year available - which is 2025. Blumenau and Warsaw are appeared to be the greenest cities by a substantial amount.
+classified as green in the most recent year available - which is 2025. Blumenau and Warsaw were shown to be the greenest cities by a substantial amount.
 
 ### Cities with the largest declines in green-space share
 
@@ -39,7 +39,7 @@ comparison, with a substantially larger decrease than most other cities.
 ![Largest increases](figures/largest_increases.png)
 
 The chart compares the change in the percentage of urban area classified
-as green between 1990 and 2025. León shows the greatest increase over the years 
+as green between 1990 and 2025. León shows the greatest increase over the years.
 
 
 ## Tools
