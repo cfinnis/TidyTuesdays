@@ -11,14 +11,7 @@ glimpse(urban)
 head(urban)
 summary(urban)
 
-#Questions:
-    # What city has the highest percentage of green space in urban areas in most recent year available?
-    # What region has the highest average percentage of green space in urban areas?
-    # What is the relationship between average percentage of green space and green space per capita?
-    # How has the percentage of green space in urban areas changed over time for different regions?
-
 # Data cleaning and wrangling
-# View(urban)
 # What city has the highest percentage of green space in urban areas in most recent year available?
 greenest_cities <- urban |>
   filter(year == 2025) |>
@@ -27,11 +20,10 @@ greenest_cities <- urban |>
 
 greenest_cities |>
   select(cityName,
-        countryOrTerritoryName,
-        year,
-        averageShareOfGreenAreaInCityUrbanAreaPct) |>
+         countryOrTerritoryName,
+         year,
+         averageShareOfGreenAreaInCityUrbanAreaPct) |>
   head()
-  #View()
 
 # Bar chart of top 10 cities with highest percentage of green space in urban areas
 top_10_cities <- greenest_cities |>
@@ -51,7 +43,15 @@ greenest_cities_plot <- ggplot(
     y = "City"
   )
 
-  # Which city had the largest decline in the percentage of its urban area that was green between 1990 and 2025?
+ggsave(
+  "2026-09-22-green-space/figures/greenest_cities.png",
+  plot = greenest_cities_plot,
+  width = 10,
+  height = 6,
+  dpi = 300
+)
+
+  # Which cities experienced the largest decline in green space percentage between 1990 and 2025?
 city_change <- urban |>
   filter(year %in% c(1990, 2025)) |>
   filter(!is.na(averageShareOfGreenAreaInCityUrbanAreaPct)) |>
@@ -69,7 +69,8 @@ city_change <- urban |>
   ) |>
   filter(!is.na(green_1990), !is.na(green_2025)) |>
   mutate(
-    change = green_2025 - green_1990
+    change = green_2025 - green_1990,
+    city_label = paste(cityName, countryOrTerritoryName, sep = ", ")
   ) |>
   arrange(change)
 
@@ -81,7 +82,7 @@ loss_plot <- ggplot(
   largest_losses,
   aes(
     x = change,
-    y = reorder(cityName, change)
+    y = reorder(city_label, change)
   )
 ) +
   geom_col() +
@@ -92,4 +93,61 @@ loss_plot <- ggplot(
     y = "City"
   )
 
-print(loss_plot)
+ggsave(
+  "2026-09-22-green-space/figures/largest_declines.png",
+  plot = loss_plot,
+  width = 10,
+  height = 6,
+  dpi = 300
+)
+
+# Which cities experienced the largest increase in green space percentage between 1990 and 2025?
+
+city_increase <- urban |>
+  filter(year %in% c(1990, 2025)) |>
+  filter(!is.na(averageShareOfGreenAreaInCityUrbanAreaPct)) |>
+  select(
+    cityCode,
+    cityName,
+    countryOrTerritoryName,
+    year,
+    averageShareOfGreenAreaInCityUrbanAreaPct
+  ) |>
+  pivot_wider(
+    names_from = year,
+    values_from = averageShareOfGreenAreaInCityUrbanAreaPct,
+    names_prefix = "green_"
+  ) |>
+  filter(!is.na(green_1990), !is.na(green_2025)) |>
+  mutate(
+    change = green_2025 - green_1990,
+    city_label = paste(cityName, countryOrTerritoryName, sep = ", ")
+  ) |>
+  arrange(desc(change))
+
+largest_increases <- city_increase |>
+  slice_head(n = 10)
+
+# Positive bar chart for top 10 cities with largest decline in percentage of green space
+increase_plot <- ggplot(
+  largest_increases,
+  aes(
+    x = change,
+    y = reorder(city_label, change)
+  )
+) +
+  geom_col() +
+  labs(
+    title = "Cities with the largest increases in urban green space",
+    subtitle = "Change in the share of urban area classified as green, 1990–2025",
+    x = "Change in green area (percentage points)",
+    y = "City"
+  )
+
+ggsave(
+  "2026-09-22-green-space/figures/largest_increases.png",
+  plot = increase_plot,
+  width = 10,
+  height = 6,
+  dpi = 300
+)
